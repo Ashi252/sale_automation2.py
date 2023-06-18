@@ -1,0 +1,56 @@
+import csv
+
+inventory = {
+    "sweet corn": {"stock": 1000, "price": 450},
+    "ketchup": {"stock": 900, "price": 200},
+    "rice": {"stock": 200, "price": 10000},
+}
+
+def purchase():
+    total = 0
+    items = []
+    while True:
+        item = input("What item would you like to purchase? ")
+        if item not in inventory:
+            print("Sorry, we don't have that item.")
+            continue
+        stock = inventory[item]["stock"]
+        if stock == 0:
+            print("Sorry, that item is out of stock.")
+            continue
+        price = inventory[item]["price"]
+        print(f"The price of {item} is {price}.")
+        quantity = int(input("How many would you like to purchase? "))
+        if quantity > stock:
+            print(f"Sorry, we only have {stock} in stock.")
+            continue
+        confirm = input(f"Are you sure you want to purchase {quantity} {item}(s)? (y/n) ")
+        if confirm.lower() != "y":
+            continue
+        inventory[item]["stock"] -= quantity
+        total += price * quantity
+        items.append({"item": item, "price": price, "quantity": quantity})
+        more = input("Would you like to purchase another item? (y/n) ")
+        if more.lower() != "y":
+            break
+
+    if total >= 5000:
+        discount = total * 0.12
+    elif total >= 3500:
+        discount = total * 0.1
+    elif total >= 2000:
+        discount = total * 0.05
+    else:
+        discount = 0
+
+    with open("purchases.csv", mode="w", newline="") as file:
+        writer = csv.writer(file)
+        writer.writerow(["Item", "Price", "Quantity"])
+        for item in items:
+            writer.writerow([item["item"], item["price"], item["quantity"]])
+
+    print(f"Your total is NGN{total - discount:.2f}.")
+    if discount > 0:
+        print(f"You received a discount of NGN{discount:.2f}.")
+
+purchase()
